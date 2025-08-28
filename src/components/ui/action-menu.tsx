@@ -14,6 +14,7 @@ export type ActionMenuItem = {
   hidden?: boolean;
   dividerBefore?: boolean;
   className?: string;
+  children?: ActionMenuItem[];
 };
 
 export type ActionMenuProps = {

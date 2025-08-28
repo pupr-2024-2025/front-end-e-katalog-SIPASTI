@@ -7,20 +7,118 @@ import {
   ColumnDef,
   PenugasanRow,
 } from "../../../../types/penugasan/penugasan-list";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Pagination from "@components/ui/pagination";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { IconButton } from "@mui/material";
+import { More, DocumentText, Document, People } from "iconsax-react";
+import ActionMenu, { type ActionMenuItem } from "@components/ui/action-menu";
 
 export default function PenugasanDataList() {
   const { data, error, loading } = useFetch(getPenugasanList, []);
-  console.log(data);
   const allData = data ?? [];
 
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  //   define constant
+  // state untuk action-menu dan sub-menu
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [selectedRow, setSelectedRow] = useState<PenugasanRow | null>(null);
+  const [submenuAnchorEl, setSubmenuAnchorEl] = useState<HTMLElement | null>(
+    null
+  );
+
+  // define constant
   const ITEMS_PER_PAGE = 10;
   const total = allData.length;
+
+  // handle menu utama
+  const handleMenuOpen = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    row: PenugasanRow
+  ) => {
+    e.stopPropagation();
+    setAnchorEl(e.currentTarget);
+    setSelectedRow(row);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedRow(null);
+  };
+
+  // handle sub-menu
+  const handleSubMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setSubmenuAnchorEl(event?.currentTarget ?? anchorEl);
+  };
+
+  const handleSubMenuClose = () => {
+    setSubmenuAnchorEl(null);
+  };
+
+  // daftar menu aksi utama
+  const menuItems: ActionMenuItem[] = useMemo(
+    () => [
+      {
+        id: "pdf",
+        label: "Lihat PDF Kuesioner",
+        icon: <DocumentText size={18} color="currentColor" />,
+        onClick: () => {
+          console.log("Lihat PDF", selectedRow);
+          handleMenuClose();
+        },
+      },
+      {
+        id: "detail",
+        label: "Lihat Detail Kuesioner",
+        icon: <Document size={18} color="currentColor" />,
+        onClick: () => {
+          console.log("Lihat Detail", selectedRow);
+          handleMenuClose();
+        },
+      },
+      {
+        id: "penugasan",
+        label: "Penugasan Tim",
+        icon: <People size={18} color="currentColor" />,
+        onClick: (e: React.MouseEvent<HTMLElement>) => handleSubMenuOpen(e),
+      },
+    ],
+    [selectedRow]
+  );
+
+  // daftar sub-menu penugasan tim
+  const submenuItems: ActionMenuItem[] = useMemo(
+    () => [
+      {
+        id: "pengawas",
+        label: "Pengawas",
+        onClick: () => {
+          console.log("Penugasan Pengawas", selectedRow);
+          handleSubMenuClose();
+          handleMenuClose();
+        },
+      },
+      {
+        id: "lapangan",
+        label: "Petugas Lapangan",
+        onClick: () => {
+          console.log("Penugasan Petugas Lapangan", selectedRow);
+          handleSubMenuClose();
+          handleMenuClose();
+        },
+      },
+      {
+        id: "pengolah",
+        label: "Pengolah Data",
+        disabled: true, // contoh disable opsi ini
+        onClick: () => {
+          console.log("Penugasan Pengolah Data", selectedRow);
+          handleSubMenuClose();
+          handleMenuClose();
+        },
+      },
+    ],
+    [selectedRow]
+  );
 
   const columns: ColumnDef<PenugasanRow>[] = useMemo(
     () => [
@@ -30,12 +128,26 @@ export default function PenugasanDataList() {
       { key: "kode_rup", header: "Kode RUP" },
       { key: "status", header: "Status" },
       {
-        key: "aksi",
+        key: "__aksi",
         header: "Aksi",
+        className: "w-[64px] text-center",
+        cell: (row) => (
+          <IconButton
+            aria-label="aksi"
+            onClick={(e) => handleMenuOpen(e, row)}
+            size="small"
+          >
+            <More
+              size={20}
+              color="var(--color-emphasis-light-on-surface-high)"
+            />
+          </IconButton>
+        ),
       },
     ],
     []
   );
+
   return (
     <div className="p-8">
       <div className="space-y-3">
@@ -64,6 +176,21 @@ export default function PenugasanDataList() {
             />
           </>
         )}
+        {/* Main Action Menu */}
+        <ActionMenu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+          items={menuItems}
+        />
+
+        {/* Submenu for Penugasan Tim */}
+        <ActionMenu
+          anchorEl={submenuAnchorEl}
+          open={Boolean(submenuAnchorEl)}
+          onClose={handleSubMenuClose}
+          items={submenuItems}
+        />
       </div>
     </div>
   );
