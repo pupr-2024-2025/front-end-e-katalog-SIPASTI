@@ -17,4 +17,5 @@ export const ENDPOINTS = {
     `/perencanaan-data/get-data-vendor/${id}`,
 
   getPerencanaanList: "/perencanaan-data/table-list-prencanaan-data",
+  getListPengumpulan: "/pengumpulan-data/table-list-pengumpulan"
 } as const;
