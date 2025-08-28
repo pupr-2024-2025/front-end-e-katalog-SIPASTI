@@ -17,5 +17,11 @@ export const ENDPOINTS = {
     `/perencanaan-data/get-data-vendor/${id}`,
 
   getPerencanaanList: "/perencanaan-data/table-list-prencanaan-data",
+
+  getTableListPengumpulan: "/pengumpulan-data/table-list-pengumpulan",
+  generateLinkPengumpulan: (id: string | number) =>
+    `/pengumpulan-data/generate-link/${id}`,
+  getVendorsByPaket: (id: string | number) =>
+    `/pengumpulan-data/list-vendor-by-paket/${id}`,
   getListPengumpulan: "/pengumpulan-data/table-list-pengumpulan"
 } as const;
