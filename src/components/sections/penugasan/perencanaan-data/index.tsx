@@ -1,7 +1,6 @@
 "use client";
 
 import DataTableMui from "@components/ui/table";
-import { useFetch } from "@hooks/perencanaan-data/use-fetch";
 import { getPenugasanList } from "@lib/api/penugasan/list-table";
 import {
   ColumnDef,
@@ -12,6 +11,7 @@ import Pagination from "@components/ui/pagination";
 import { IconButton } from "@mui/material";
 import { More, DocumentText, Document, People } from "iconsax-react";
 import ActionMenu, { type ActionMenuItem } from "@components/ui/action-menu";
+import { useFetch } from "@hooks/penugasan/use-fetch";
 
 export default function PenugasanDataList() {
   const { data, error, loading } = useFetch(getPenugasanList, []);
@@ -45,11 +45,7 @@ export default function PenugasanDataList() {
     setSelectedRow(null);
   };
 
-  // handle sub-menu
-  const handleSubMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setSubmenuAnchorEl(event?.currentTarget ?? anchorEl);
-  };
-
+  // handle close sub-menu
   const handleSubMenuClose = () => {
     setSubmenuAnchorEl(null);
   };
@@ -79,10 +75,14 @@ export default function PenugasanDataList() {
         id: "penugasan",
         label: "Penugasan Tim",
         icon: <People size={18} color="currentColor" />,
-        onClick: (e: React.MouseEvent<HTMLElement>) => handleSubMenuOpen(e),
+        onClick: () => {
+          // ✅ Open submenu using existing anchorEl
+          // No event needed — we already have anchorEl from parent menu
+          setSubmenuAnchorEl(anchorEl);
+        },
       },
     ],
-    [selectedRow]
+    [selectedRow, anchorEl]
   );
 
   // daftar sub-menu penugasan tim
@@ -109,7 +109,6 @@ export default function PenugasanDataList() {
       {
         id: "pengolah",
         label: "Pengolah Data",
-        disabled: true, // contoh disable opsi ini
         onClick: () => {
           console.log("Penugasan Pengolah Data", selectedRow);
           handleSubMenuClose();
